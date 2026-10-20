@@ -1,19 +1,5 @@
 const OMDB_KEY = import.meta.env.VITE_OMDB_KEY
-
 const BOOKS_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY
-
-const booksUrl = (path, params = {}) => {
-  const qs = new URLSearchParams(params)
-  if (BOOKS_KEY) qs.set('key', BOOKS_KEY)
-  return `https://www.googleapis.com/books/v1/${path}?${qs}`
-}
-
-const booksError = (status) =>
-  new Error(
-    status === 429
-      ? 'Google Books : trop de requêtes, réessaie dans un instant (ou ajoute une clé API).'
-      : `Google Books : erreur ${status}`,
-  )
 
 const parseYear = (v) => {
   const m = String(v ?? '').match(/\d{4}/)
@@ -24,14 +10,40 @@ const toNumber = (v) => {
   const n = Number(String(v ?? '').replace(/,/g, ''))
   return Number.isFinite(n) && n > 0 ? n : null
 }
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
+// Les items déjà vus : la page détail les retrouve sans refaire d'appel
 const cache = new Map()
+const searchCache = new Map()
 const remember = (items) => {
   items.forEach((i) => cache.set(i.id, i))
   return items
 }
 
 // ── Google Books ──
+const booksUrl = (path, params = {}) => {
+  const qs = new URLSearchParams(params)
+  if (BOOKS_KEY) qs.set('key', BOOKS_KEY)
+  return `https://www.googleapis.com/books/v1/${path}?${qs}`
+}
+
+const booksError = (status) =>
+  new Error(
+    status === 429 || status === 503
+      ? 'Google Books est momentanément indisponible, réessaie dans un instant.'
+      : `Google Books : erreur ${status}`,
+  )
+
+// Relance la requête si Google répond « trop de requêtes » ou « indisponible »
+async function fetchBooks(url, retries = 2) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url)
+    const temporary = res.status === 429 || res.status === 503
+    if (!temporary || attempt >= retries) return res
+    await wait(800 * (attempt + 1))
+  }
+}
+
 function normalizeBook(raw) {
   const info = raw.volumeInfo ?? {}
   const cover = info.imageLinks?.thumbnail ?? null
@@ -96,21 +108,37 @@ async function searchMovies(query) {
     `https://www.omdbapi.com/?apikey=${OMDB_KEY}&type=movie&s=${encodeURIComponent(query)}`,
   )
   const search = await res.json()
-  if (search.Response === 'False') return []
+  if (search.Response === 'False') {
+    if (search.Error === 'Movie not found!') return []
+    throw new Error(`OMDb : ${search.Error}`)
+  }
+
+  // La recherche ne donne ni réalisateur ni résumé : un appel détaillé par film
   const movies = await Promise.all(
-    search.Search.slice(0, 8).map((m) => fetchMovie(m.imdbID).catch(() => null)),
+    search.Search.slice(0, 8).map((m) =>
+      fetchMovie(m.imdbID).catch((e) => {
+        console.error('Détail OMDb en échec', m.imdbID, e)
+        return null
+      }),
+    ),
   )
   return movies.filter(Boolean)
 }
 
+// ── Points d'entrée ──
 export async function searchItems(query, type = 'movie') {
   const q = query.trim()
   if (!q) return []
-  return remember(type === 'book' ? await searchBooks(q) : await searchMovies(q))
+  const key = `${type}:${q.toLowerCase()}`
+  if (searchCache.has(key)) return searchCache.get(key)
+  const items = remember(type === 'book' ? await searchBooks(q) : await searchMovies(q))
+  searchCache.set(key, items)
+  return items
 }
 
 export async function getItem(id) {
   if (cache.has(id)) return cache.get(id)
+  // Les identifiants IMDb commencent par « tt »
   const item = id.startsWith('tt') ? await fetchMovie(id) : await fetchBook(id)
   cache.set(id, item)
   return item
