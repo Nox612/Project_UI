@@ -3,7 +3,7 @@ const tabs = [
   { to: '/', label: 'Home' },
   { to: '/search', label: 'Search' },
   { to: '/library', label: 'Library' },
-  { to: '/profile', label: 'Profile' },
+  { to: '/favorites', label: 'Favorites' },
 ]
 </script>
 
