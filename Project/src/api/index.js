@@ -1,5 +1,20 @@
 const OMDB_KEY = import.meta.env.VITE_OMDB_KEY
 
+const BOOKS_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY
+
+const booksUrl = (path, params = {}) => {
+  const qs = new URLSearchParams(params)
+  if (BOOKS_KEY) qs.set('key', BOOKS_KEY)
+  return `https://www.googleapis.com/books/v1/${path}?${qs}`
+}
+
+const booksError = (status) =>
+  new Error(
+    status === 429
+      ? 'Google Books : trop de requêtes, réessaie dans un instant (ou ajoute une clé API).'
+      : `Google Books : erreur ${status}`,
+  )
+
 const parseYear = (v) => {
   const m = String(v ?? '').match(/\d{4}/)
   return m ? Number(m[0]) : null
@@ -10,7 +25,6 @@ const toNumber = (v) => {
   return Number.isFinite(n) && n > 0 ? n : null
 }
 
-// Les items déjà vus : la page détail les retrouve sans refaire d'appel
 const cache = new Map()
 const remember = (items) => {
   items.forEach((i) => cache.set(i.id, i))
@@ -38,17 +52,15 @@ function normalizeBook(raw) {
 }
 
 async function searchBooks(query) {
-  const res = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`,
-  )
-  if (!res.ok) throw new Error(`Google Books : erreur ${res.status}`)
+  const res = await fetchBooks(booksUrl('volumes', { q: query, maxResults: 20 }))
+  if (!res.ok) throw booksError(res.status)
   const data = await res.json()
   return (data.items ?? []).map(normalizeBook)
 }
 
 async function fetchBook(id) {
-  const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${id}`)
-  if (!res.ok) throw new Error(`Google Books : erreur ${res.status}`)
+  const res = await fetchBooks(booksUrl(`volumes/${id}`))
+  if (!res.ok) throw booksError(res.status)
   return normalizeBook(await res.json())
 }
 
@@ -85,15 +97,12 @@ async function searchMovies(query) {
   )
   const search = await res.json()
   if (search.Response === 'False') return []
-
-  // La recherche ne donne ni réalisateur ni résumé : un appel détaillé par film
   const movies = await Promise.all(
     search.Search.slice(0, 8).map((m) => fetchMovie(m.imdbID).catch(() => null)),
   )
   return movies.filter(Boolean)
 }
 
-// ── Points d'entrée ──
 export async function searchItems(query, type = 'movie') {
   const q = query.trim()
   if (!q) return []
@@ -102,7 +111,6 @@ export async function searchItems(query, type = 'movie') {
 
 export async function getItem(id) {
   if (cache.has(id)) return cache.get(id)
-  // Les identifiants IMDb commencent par « tt »
   const item = id.startsWith('tt') ? await fetchMovie(id) : await fetchBook(id)
   cache.set(id, item)
   return item
