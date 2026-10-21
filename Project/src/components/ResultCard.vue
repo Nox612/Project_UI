@@ -36,6 +36,7 @@ const emit = defineEmits(['select', 'add'])
 <style scoped>
 .result-card {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 14px;
   padding: 10px 12px 10px 10px;

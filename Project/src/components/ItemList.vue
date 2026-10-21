@@ -15,13 +15,13 @@ defineProps({
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px 14px;
 }
 
 @media (min-width: 640px) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(170px, 100%), 1fr));
     gap: 16px;
   }
 }
