@@ -60,4 +60,14 @@ Project/src/
 
 ## Maquette
 
-Le persona, les wireframes et le prototype sont sur Figma.
+Persona :
+
+**Camille** étudiante cinéma, 22 ans
+
+Elle vit en colocation à Lyon et passe environ une heure par jour dans les transports, avec son smartphone comme outil principal. Elle regarde deux ou trois films par semaine, lit un livre par mois et adore partager des recommandations avec ses amis.
+
+Son problème, c’est qu’elle ne sait pas où ranger ces recommandations. Elle les note dans son téléphone, fait des captures d’écran et au moment de choisir un film, elle ne retrouve plus rien.
+
+Pour cela elle utilise Lettersquare pour les films et les livres, recherche, ajout et progression, une bibliothèque qui se souvient d’elle sans avoir à créer de compte.
+
+De là vient notre question : comment aider les amateurs de films et de livres à rassembler, suivre et retrouver facilement ce qu’ils veulent voir ou lire, en un seul endroit simple et rapide ?
