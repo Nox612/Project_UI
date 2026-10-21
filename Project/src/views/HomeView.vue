@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { getItem, trendingBooks } from '../api'
 import { statusLabel } from '../utils/status'
+import ThemeToggle from '../components/ThemeToggle.vue'
 import TypeIcon from '../components/TypeIcon.vue'
 
 const router = useRouter()
@@ -70,6 +71,7 @@ const open = (item) => router.push({ name: 'item', params: { id: item.id } })
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z" /></svg>
         </span>
         <span class="name">MyShelf</span>
+        <ThemeToggle class="corner" />
       </header>
 
       <div class="segmented" role="group" aria-label="Type">
@@ -168,6 +170,10 @@ const open = (item) => router.push({ name: 'item', params: { id: item.id } })
   font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+.corner {
+  margin-left: auto;
 }
 
 .segmented {

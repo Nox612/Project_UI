@@ -30,6 +30,35 @@
   color-scheme: light;
 }
 
+/* Mode sombre (bouton en haut de l'accueil) : gris foncés neutres et texte blanc.
+   Par défaut l'appli est en clair, comme la maquette. */
+:root[data-theme='dark'] {
+  --bg: #1c1c1f;
+  --bg-soft: #1c1c1f;
+  --surface: #26272b;
+  --surface-2: #313236;
+  --cover-bg: #313236;
+  --text: #f4f4f5;
+  --muted: #a1a1a8;
+  --subtle: #7d7d85;
+  --border: #3a3b40;
+  --border-soft: #313236;
+  --accent: #8b85ff;
+  --accent-soft: #34335a;
+  --on-accent: #ffffff;
+  --danger: #f87171;
+  --want-bg: #4a4220;
+  --want-fg: #fde68a;
+  --progress-bg: #2c3a55;
+  --progress-fg: #a9c1ff;
+  --done-bg: #24402f;
+  --done-fg: #8be0ae;
+  --add-bg: #24402f;
+  --add-fg: #8be0ae;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
 *,
 *::before,
 *::after {
