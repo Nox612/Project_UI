@@ -62,7 +62,7 @@ Project/src/
 
 Persona :
 
-**Camille** étudiante cinéma, 22 ans
+**Camille** étudiante Efrei, 22 ans
 
 Elle vit en colocation à Lyon et passe environ une heure par jour dans les transports, avec son smartphone comme outil principal. Elle regarde deux ou trois films par semaine, lit un livre par mois et adore partager des recommandations avec ses amis.
 
@@ -71,3 +71,7 @@ Son problème, c’est qu’elle ne sait pas où ranger ces recommandations. Ell
 Pour cela elle utilise Lettersquare pour les films et les livres, recherche, ajout et progression, une bibliothèque qui se souvient d’elle sans avoir à créer de compte.
 
 De là vient notre question : comment aider les amateurs de films et de livres à rassembler, suivre et retrouver facilement ce qu’ils veulent voir ou lire, en un seul endroit simple et rapide ?
+
+Figma :
+
+https://www.figma.com/proto/xEC60HhQmKcy7MMbsGHvEY/medical-app?node-id=0-1&t=1dOyzgptFAOjUTPV-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=31%3A4&fuid=1676239225170036812
