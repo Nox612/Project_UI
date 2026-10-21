@@ -1,4 +1,5 @@
 import { STATUSES } from '../../utils/status'
+import { readLibrary } from '../plugins/persistence'
 
 // Module Vuex "library" : la collection personnelle de l'utilisateur.
 //
@@ -75,8 +76,9 @@ const actions = {
     const next = STATUSES[(STATUSES.indexOf(item.status) + 1) % STATUSES.length]
     commit('SET_STATUS', { id, status: next })
   },
-  loadLibrary({ commit }, items = []) {
-    commit('SET_LIBRARY', items)
+  // Recharge la collection sauvegardée (appelée au démarrage)
+  loadLibrary({ commit }) {
+    commit('SET_LIBRARY', readLibrary())
   },
 }
 
