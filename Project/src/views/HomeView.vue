@@ -56,6 +56,24 @@ const recent = computed(() =>
 
 const progress = { want: 0, 'in-progress': 50, done: 100 }
 
+// « Picked for You » : quelques éléments tirés au hasard dans la liste « Want »
+const wantItems = computed(() =>
+  store.getters['library/allItems'].filter((i) => i.type === type.value && i.status === 'want'),
+)
+const picks = ref([])
+
+function shuffle() {
+  const pool = [...wantItems.value]
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[pool[i], pool[j]] = [pool[j], pool[i]]
+  }
+  picks.value = pool.slice(0, 6)
+}
+
+// nouveau tirage quand on change de type ou quand la liste « Want » change
+watch(() => `${type.value}:${wantItems.value.map((i) => i.id).join()}`, shuffle, { immediate: true })
+
 function search() {
   router.push({ name: 'search', query: query.value.trim() ? { q: query.value.trim(), type: type.value } : { type: type.value } })
 }
@@ -86,6 +104,26 @@ const open = (item) => router.push({ name: 'item', params: { id: item.id } })
           <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 4v6M6 14v6M12 4v2M12 10v10M18 4v10M18 18v2M4 12h4M10 8h4M16 16h4" /></svg>
         </button>
       </form>
+
+      <section v-if="picks.length">
+        <div class="section-head">
+          <h2>Picked for You</h2>
+          <button v-if="wantItems.length > 1" class="shuffle" aria-label="Pick again" @click="shuffle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" /></svg>
+            Shuffle
+          </button>
+        </div>
+        <p class="section-sub">From your {{ type === 'movie' ? 'Want to Watch' : 'Want to Read' }} list</p>
+
+        <div class="trending">
+          <button v-for="item in picks" :key="item.id" class="poster-card" @click="open(item)">
+            <img v-if="item.cover" class="poster" :src="item.cover" :alt="item.title" loading="lazy" />
+            <span v-else class="poster poster-fallback"><TypeIcon :type="item.type" :size="28" /></span>
+            <span class="poster-title">{{ item.title }}</span>
+            <span class="poster-year">{{ item.year }}</span>
+          </button>
+        </div>
+      </section>
 
       <section>
         <div class="section-head">
@@ -247,6 +285,25 @@ const open = (item) => router.push({ name: 'item', params: { id: item.id } })
   margin: 0;
   font-size: 1.08rem;
   font-weight: 700;
+}
+
+.section-sub {
+  margin: -6px 0 12px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.shuffle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .section-head a {
