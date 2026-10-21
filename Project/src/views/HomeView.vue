@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { getItem, searchItems } from '../api'
+import { getItem, trendingBooks } from '../api'
 import { statusLabel } from '../utils/status'
 import TypeIcon from '../components/TypeIcon.vue'
 
@@ -12,8 +12,8 @@ const store = useStore()
 const type = ref('movie')
 const query = ref('')
 
-// « Trending Now » : les API n'ont pas de vraie liste de tendances,
-// on affiche une sélection de films populaires et une recherche de romans.
+// « Trending Now » : OMDb n'a pas de liste de tendances, on affiche une sélection
+// de films populaires ; pour les livres, les tendances du jour d'Open Library.
 const POPULAR_MOVIES = ['tt0816692', 'tt15239678', 'tt15398776', 'tt3659388', 'tt1375666', 'tt1454468']
 const trending = ref([])
 const trendingLoading = ref(false)
@@ -32,7 +32,7 @@ async function loadTrending() {
       const results = await Promise.allSettled(POPULAR_MOVIES.map((id) => getItem(id)))
       items = results.filter((r) => r.status === 'fulfilled').map((r) => r.value)
     } else {
-      items = (await searchItems('subject:fiction bestseller', 'book')).filter((i) => i.cover).slice(0, 8)
+      items = (await trendingBooks()).slice(0, 8)
     }
     trendingCache[t] = items
     if (type.value === t) trending.value = items
